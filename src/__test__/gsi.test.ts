@@ -1,4 +1,5 @@
-import { GSIBuilder, PartitionKeyOptions, SortKeyOptions } from '../index';
+import type { PartitionKeyOptions, SortKeyOptions } from '../index';
+import { GSIBuilder } from '../index';
 
 interface Entity {
   firstName: string;
@@ -18,7 +19,10 @@ describe('GSI Builder', () => {
     prefix: 'created-at',
     fields: ['createdAt'],
     transformValues<V extends { createdAt?: number }>(values: V) {
-      return { ...values, createdAt: values.createdAt || new Date('2020-12-01').valueOf() };
+      return {
+        ...values,
+        createdAt: values.createdAt || new Date('2020-12-01').valueOf(),
+      };
     },
   };
 
@@ -31,22 +35,40 @@ describe('GSI Builder', () => {
       .build();
 
     expect(gsi.name()).toBe('test1');
-    expect(gsi.partitionKey({ firstName: 'Josh', lastName: 'Smith' })).toEqual(['users-by-name', 'Josh', 'Smith']);
-    expect(gsi.sortKey()).toEqual(['created-at', new Date('2020-12-01').valueOf()]);
+    expect(gsi.partitionKey({ firstName: 'Josh', lastName: 'Smith' })).toEqual([
+      'users-by-name',
+      'Josh',
+      'Smith',
+    ]);
+    expect(gsi.sortKey()).toEqual([
+      'created-at',
+      new Date('2020-12-01').valueOf(),
+    ]);
   });
 
   test('Fail to build if missing args', () => {
-    expect(() => GSIBuilder.forEntity().build()).toThrow(new Error('Missing GSI index name'));
-
-    expect(() => GSIBuilder.forEntity().withName('test2').build()).toThrow(new Error('Missing GSI index PK options'));
-
-    expect(() => GSIBuilder.forEntity<Entity>().withName('test3').withPartitionKey(pk).build()).toThrow(
-      new Error('Missing GSI index SK options'),
+    expect(() => GSIBuilder.forEntity().build()).toThrow(
+      new Error('Missing GSI index name'),
     );
 
-    expect(() => GSIBuilder.forEntity<Entity>().withName('test4').withPartitionKey(pk).withSortKey(sk).build()).toThrow(
-      new Error('Missing GSI index encoding method'),
+    expect(() => GSIBuilder.forEntity().withName('test2').build()).toThrow(
+      new Error('Missing GSI index PK options'),
     );
+
+    expect(() =>
+      GSIBuilder.forEntity<Entity>()
+        .withName('test3')
+        .withPartitionKey(pk)
+        .build(),
+    ).toThrow(new Error('Missing GSI index SK options'));
+
+    expect(() =>
+      GSIBuilder.forEntity<Entity>()
+        .withName('test4')
+        .withPartitionKey(pk)
+        .withSortKey(sk)
+        .build(),
+    ).toThrow(new Error('Missing GSI index encoding method'));
   });
 });
 
@@ -71,16 +93,23 @@ describe('GSI', () => {
 
     expect(gsi.sortKey()).toEqual(['created-at']);
     expect(gsi.sortKey({ firstName: 'John' })).toEqual(['created-at', 'John']);
-    expect(gsi.sortKey({ firstName: 'John', lastName: 'Smith' })).toEqual(['created-at', 'John', 'Smith']);
-    expect(gsi.sortKey({ firstName: 'John', lastName: 'Smith', createdAt: 10 })).toEqual([
+    expect(gsi.sortKey({ firstName: 'John', lastName: 'Smith' })).toEqual([
       'created-at',
       'John',
       'Smith',
-      10,
     ]);
+    expect(
+      gsi.sortKey({ firstName: 'John', lastName: 'Smith', createdAt: 10 }),
+    ).toEqual(['created-at', 'John', 'Smith', 10]);
 
     // undefined fields are ignored, it is the callers responsibility to ensure this still creates a valid sort key in context of the DB records
-    expect(gsi.sortKey({ firstName: 'Cher', createdAt: 10 })).toEqual(['created-at', 'Cher', 10]);
-    expect(gsi.sortKey({ firstName: 'Cher', lastName: undefined, createdAt: 10 })).toEqual(['created-at', 'Cher', 10]);
+    expect(gsi.sortKey({ firstName: 'Cher', createdAt: 10 })).toEqual([
+      'created-at',
+      'Cher',
+      10,
+    ]);
+    expect(
+      gsi.sortKey({ firstName: 'Cher', lastName: undefined, createdAt: 10 }),
+    ).toEqual(['created-at', 'Cher', 10]);
   });
 });
