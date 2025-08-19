@@ -1,6 +1,6 @@
-# Contributing to @lexicographic/keys-builder
+# Contributing to @lexicographic/index-builder
 
-Thank you for considering a contribution to `@lexicographic/keys-builder`! Pull requests, issues and comments are welcome. For pull requests, please:
+Thank you for considering a contribution to `@lexicographic/index-builder`! Pull requests, issues and comments are welcome. For pull requests, please:
 
 * Add tests for new features and bug fixes
 * Follow the existing style

@@ -1,5 +1,5 @@
 import type { PartitionKeyOptions, SortKeyOptions } from '../index';
-import { GSIBuilder } from '../index';
+import { CompositeIndexBuilder } from '../index';
 
 interface Entity {
   firstName: string;
@@ -9,7 +9,7 @@ interface Entity {
 
 const encode = (...v: any[]) => v as any;
 
-describe('GSI Builder', () => {
+describe('CompositeIndex Builder', () => {
   const pk: PartitionKeyOptions<Entity, ['firstName', 'lastName']> = {
     prefix: 'users-by-name',
     fields: ['firstName', 'lastName'],
@@ -26,53 +26,51 @@ describe('GSI Builder', () => {
     },
   };
 
-  test('Can build GSI', () => {
-    const gsi = GSIBuilder.forEntity<Entity>()
+  test('Can build CompositeIndex', () => {
+    const index = CompositeIndexBuilder.forEntity<Entity>()
       .withName('test1')
       .withPartitionKey(pk)
       .withSortKey(sk)
       .withEncodingMethod(encode)
       .build();
 
-    expect(gsi.name()).toBe('test1');
-    expect(gsi.partitionKey({ firstName: 'Josh', lastName: 'Smith' })).toEqual([
-      'users-by-name',
-      'Josh',
-      'Smith',
-    ]);
-    expect(gsi.sortKey()).toEqual([
+    expect(index.name()).toBe('test1');
+    expect(
+      index.partitionKey({ firstName: 'Josh', lastName: 'Smith' }),
+    ).toEqual(['users-by-name', 'Josh', 'Smith']);
+    expect(index.sortKey()).toEqual([
       'created-at',
       new Date('2020-12-01').valueOf(),
     ]);
   });
 
   test('Fail to build if missing args', () => {
-    expect(() => GSIBuilder.forEntity().build()).toThrow(
-      new Error('Missing GSI index name'),
-    );
-
-    expect(() => GSIBuilder.forEntity().withName('test2').build()).toThrow(
-      new Error('Missing GSI index PK options'),
+    expect(() => CompositeIndexBuilder.forEntity().build()).toThrow(
+      new Error('Missing CompositeIndex index name'),
     );
 
     expect(() =>
-      GSIBuilder.forEntity<Entity>()
+      CompositeIndexBuilder.forEntity().withName('test2').build(),
+    ).toThrow(new Error('Missing CompositeIndex index PK options'));
+
+    expect(() =>
+      CompositeIndexBuilder.forEntity<Entity>()
         .withName('test3')
         .withPartitionKey(pk)
         .build(),
-    ).toThrow(new Error('Missing GSI index SK options'));
+    ).toThrow(new Error('Missing CompositeIndex index SK options'));
 
     expect(() =>
-      GSIBuilder.forEntity<Entity>()
+      CompositeIndexBuilder.forEntity<Entity>()
         .withName('test4')
         .withPartitionKey(pk)
         .withSortKey(sk)
         .build(),
-    ).toThrow(new Error('Missing GSI index encoding method'));
+    ).toThrow(new Error('Missing CompositeIndex index encoding method'));
   });
 });
 
-describe('GSI', () => {
+describe('CompositeIndex', () => {
   const pk: PartitionKeyOptions<Entity, ['firstName', 'lastName']> = {
     prefix: 'users-by-name',
     fields: ['firstName', 'lastName'],
@@ -84,32 +82,35 @@ describe('GSI', () => {
   };
 
   test('sortKey', () => {
-    const gsi = GSIBuilder.forEntity<Entity>()
+    const index = CompositeIndexBuilder.forEntity<Entity>()
       .withName('test1')
       .withPartitionKey(pk)
       .withSortKey({ prefix: sk.prefix, fields: sk.fields })
       .withEncodingMethod(encode)
       .build();
 
-    expect(gsi.sortKey()).toEqual(['created-at']);
-    expect(gsi.sortKey({ firstName: 'John' })).toEqual(['created-at', 'John']);
-    expect(gsi.sortKey({ firstName: 'John', lastName: 'Smith' })).toEqual([
+    expect(index.sortKey()).toEqual(['created-at']);
+    expect(index.sortKey({ firstName: 'John' })).toEqual([
+      'created-at',
+      'John',
+    ]);
+    expect(index.sortKey({ firstName: 'John', lastName: 'Smith' })).toEqual([
       'created-at',
       'John',
       'Smith',
     ]);
     expect(
-      gsi.sortKey({ firstName: 'John', lastName: 'Smith', createdAt: 10 }),
+      index.sortKey({ firstName: 'John', lastName: 'Smith', createdAt: 10 }),
     ).toEqual(['created-at', 'John', 'Smith', 10]);
 
     // undefined fields are ignored, it is the callers responsibility to ensure this still creates a valid sort key in context of the DB records
-    expect(gsi.sortKey({ firstName: 'Cher', createdAt: 10 })).toEqual([
+    expect(index.sortKey({ firstName: 'Cher', createdAt: 10 })).toEqual([
       'created-at',
       'Cher',
       10,
     ]);
     expect(
-      gsi.sortKey({ firstName: 'Cher', lastName: undefined, createdAt: 10 }),
+      index.sortKey({ firstName: 'Cher', lastName: undefined, createdAt: 10 }),
     ).toEqual(['created-at', 'Cher', 10]);
   });
 });

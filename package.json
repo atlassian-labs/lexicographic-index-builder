@@ -1,5 +1,5 @@
 {
-  "name": "@lexicographic/keys-builder",
+  "name": "@lexicographic/index-builder",
   "version": "0.9.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,9 +32,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/atlassian-labs/lexicographic-keys-builder.git"
+    "url": "git+ssh://git@github.com/atlassian-labs/lexicographic-index-builder.git"
   },
-  "homepage": "https://github.com/atlassian-labs/lexicographic-keys-builder/",
+  "homepage": "https://github.com/atlassian-labs/lexicographic-index-builder/",
   "files": [
     "dist/",
     "!dist/__test__/**"
