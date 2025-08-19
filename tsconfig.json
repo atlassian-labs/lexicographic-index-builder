@@ -22,7 +22,7 @@
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": false, // TODO re-enable
+    "exactOptionalPropertyTypes": true,
 
     // Style Options
     // "noImplicitReturns": true,

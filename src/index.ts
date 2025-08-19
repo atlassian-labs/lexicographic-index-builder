@@ -34,6 +34,8 @@ export class CompositeIndex<
 
   public partitionKey(partitionKeyFields: Pick<Entity, AnyElementOf<PK>>) {
     const transformedPk =
+      // TODO: fix after first public release
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       this.partitionKeyOptions.transformValues?.(partitionKeyFields) ||
       partitionKeyFields;
     const segments = this.partitionKeyOptions.fields.map(
@@ -51,7 +53,9 @@ export class CompositeIndex<
    * This is useful if your DB supports records like created-at#firstName#createdAt (lastName is optional) AND created-at#firstName#lastName#createdAt in the same SK.
    */
   public sortKey(sortKeyFields: Partial<Pick<Entity, AnyElementOf<SK>>> = {}) {
+    // TODO: fix after first public release
     const transformedSk =
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       this.sortKeyOptions.transformValues?.(sortKeyFields) || sortKeyFields;
     const segments = this.sortKeyOptions.fields
       .map((field) => transformedSk[field] as unknown as Segment)

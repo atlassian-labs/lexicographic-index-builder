@@ -43,7 +43,6 @@ export default [
         { argsIgnorePattern: '^_', ignoreRestSiblings: true },
       ],
       '@typescript-eslint/no-redeclare': 'error',
-      '@typescript-eslint/no-shadow': 'warn',
       '@typescript-eslint/no-unnecessary-parameter-property-assignment':
         'error',
       '@typescript-eslint/no-unnecessary-qualifier': 'error',
@@ -59,7 +58,6 @@ export default [
       '@typescript-eslint/no-import-type-side-effects': 'error',
       '@typescript-eslint/no-invalid-this': 'error',
       '@typescript-eslint/no-loop-func': 'error',
-      '@typescript-eslint/prefer-nullish-coalescing': 'warn',
     },
     languageOptions: {
       parserOptions: {

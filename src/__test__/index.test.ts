@@ -21,7 +21,7 @@ describe('CompositeIndex Builder', () => {
     transformValues<V extends { createdAt?: number }>(values: V) {
       return {
         ...values,
-        createdAt: values.createdAt || new Date('2020-12-01').valueOf(),
+        createdAt: values.createdAt ?? new Date('2020-12-01').valueOf(),
       };
     },
   };
@@ -110,7 +110,11 @@ describe('CompositeIndex', () => {
       10,
     ]);
     expect(
-      index.sortKey({ firstName: 'Cher', lastName: undefined, createdAt: 10 }),
+      index.sortKey({
+        firstName: 'Cher',
+        lastName: undefined as any,
+        createdAt: 10,
+      }),
     ).toEqual(['created-at', 'Cher', 10]);
   });
 });
