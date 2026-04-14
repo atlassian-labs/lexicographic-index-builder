@@ -143,6 +143,17 @@ The tests cover:
 - Sort key generation with partial field support
 - Error handling for missing configuration
 
+## Releasing
+
+Releases are published to [Artifactory npm-public](https://packages.atlassian.com/api/npm/npm-public/) and forwarded to npmjs.org.
+
+To publish a new release:
+
+1. Create a [GitHub Release](https://github.com/atlassian-labs/lexicographic-index-builder/releases/new) with a tag matching the new version (e.g. `1.2.0`).
+2. The [Release workflow](.github/workflows/release.yml) will automatically trigger, run tests, and publish the package using `changeset publish` via Artifactory.
+
+> **Note:** Publishing uses [`atlassian-labs/artifact-publish-token`](https://github.com/atlassian-labs/artifact-publish-token) for authentication — no manual npm credentials are required.
+
 ## Contributions
 
 Contributions to @lexicographic/index-builder are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
